@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="fa" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SARDAR MEGA CALCULATOR v3.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- معماری سیستم استایل‌دهی مدرن (UI/UX) --- */
+        :root {
+            --bg-main: #030712;
+            --sidebar-bg: #0f172a;
+            --card-bg: #1e293b;
+            --display-bg: #030712;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #8b5cf6;
+            --accent-hover: #7c3aed;
+            --btn-num: #334155;
+            --btn-num-hover: #475569;
+            --btn-op: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        .light-mode {
+            --bg-main: #f1f5f9;
+            --sidebar-bg: #ffffff;
+            --card-bg: #ffffff;
+            --display-bg: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #7c3aed;
+            --btn-num: #e2e8f0;
+            --btn-num-hover: #cbd5e1;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Fira Code', sans-serif; transition: all 0.2s ease; }
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* لایوت داشبورد دو قسمتی */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid rgba(255,255,255,0.05); padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .sidebar-brand { font-size: 1.5rem; font-weight: 600; letter-spacing: 2px; color: var(--accent); margin-bottom: 20px; text-align: center; }
+        .nav-btn { background: none; border: none; color: var(--text-muted); padding: 12px; text-align: left; border-radius: 10px; cursor: pointer; font-weight: 500; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+        .nav-btn:hover, .nav-btn.active { background-color: var(--accent); color: white; }
+
+        .main-content { flex: 1; padding: 30px; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; height: 100vh; }
+        .module-card { background-color: var(--card-bg); width: 100%; max-width: 750px; border-radius: 24px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); display: none; }
+        .module-card.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* استایل‌های اختصاصی ماشین‌حساب پایه */
+        .calc-box { max-width: 380px; margin: 0 auto; }
+        .display { background-color: var(--display-bg); padding: 20px; border-radius: 16px; text-align: right; min-height: 110px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 15px; }
+        .screen-hist { color: var(--text-muted); font-size: 1.1rem; min-height: 24px; }
+        .screen-curr { font-size: 2.5rem; font-weight: 600; word-break: break-all; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+
+        .btn { border: none; padding: 15px 5px; border-radius: 12px; font-size: 1.1rem; font-weight: 500; cursor: pointer; color: var(--text-main); background-color: var(--btn-num); }
+        .btn:hover { background-color: var(--btn-num-hover); }
+        .btn-op { background-color: var(--btn-op); color: white; }
+        .btn-sci { background-color: #06b6d4; color: white; }
+        .btn-action { background-color: var(--danger); color: white; }
+        .btn-eq { background: linear-gradient(135deg, #10b981, #059669); color: white; grid-row: span 2; }
+        .span-2 { grid-column: span 2; }
+
+        /* فرم‌ها و بخش‌های کاستوم */
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; text-align: right; }
+        input, select, textarea { width: 100%; background-color: var(--display-bg); border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 0.95rem; text-align: center; }
+        textarea { height: 120px; resize: none; text-align: right; }
+        .flex-row { display: flex; gap: 10px; }
+        .action-btn-trigger { background-color: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
+        .action-btn-trigger:hover { background-color: var(--accent-hover); }
+        .result-panel { background-color: var(--display-bg); padding: 15px; border-radius: 12px; margin-top: 15px; border-left: 4px solid var(--success); text-align: right; font-size: 0.95rem; line-height: 1.6; }
+
+        /* استایل ماتریکس */
+        .matrix-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 300px; margin: 0 auto 15px; }
+        .matrix-grid input { margin-bottom: 0; }
+    </style>
+</head>
+<body class="dark-mode">
+
+<div class="sidebar">
+    <div class="sidebar-brand">SARDAR MEGA</div>
+    <button class="nav-btn active" onclick="switchModule('base-calc', this)">📟 ماشین حساب علمی</button>
+    <button class="nav-btn" onclick="switchModule('physics-module', this)">⚡ موتور فیزیک کنکور</button>
+    <button class="nav-btn" onclick="switchModule('chemistry-module', this)">🧪 آزمایشگاه شیمی</button>
+    <button class="nav-btn" onclick="switchModule('math-matrix', this)">📐 ماتریس و هندسه</button>
+    <button class="nav-btn" onclick="switchModule('unit-converter', this)">⚖️ مبدل کلان واحدها</button>
+    <button class="nav-btn" onclick="switchModule('konkur-timer', this)">⏱️ تحلیل‌گر آزمون</button>
+    <button class="nav-btn" onclick="switchModule('smart-notes', this)">📝 یادداشت هوشمند</button>
+    <button class="nav-btn" id="theme-btn" onclick="toggleTheme()" style="margin-top: auto; background:#334155; color:white;">🌗 تغییر تم ظاهری</button>
+</div>
+
+<div class="main-content">
+
+    <div id="base-calc" class="module-card active">
+        <div class="calc-box">
+            <div class="display">
+                <div id="calc-hist" class="screen-hist"></div>
+                <div id="calc-curr" class="screen-curr">0</div>
+            </div>
+            <div class="grid-4">
+                <button class="btn btn-action" onclick="clearCalc()">AC</button>
+                <button class="btn btn-action" onclick="delCalc()">DEL</button>
+                <button class="btn" onclick="inputOp('%')">%</button>
+                <button class="btn btn-op" onclick="inputOp('/')">÷</button>
+
+                <button class="btn btn-sci" onclick="sciCalc('sin')">sin</button>
+                <button class="btn btn-sci" onclick="sciCalc('cos')">cos</button>
+                <button class="btn btn-sci" onclick="sciCalc('tan')">tan</button>
+                <button class="btn btn-op" onclick="inputOp('*')">×</button>
+
+                <button class="btn btn-sci" onclick="sciCalc('sqrt')">√</button>
+                <button class="btn btn-sci" onclick="sciCalc('log')">log</button>
+                <button class="btn btn-sci" onclick="sciCalc('ln')">ln</button>
+                <button class="btn btn-op" onclick="inputOp('-')">−</button>
+
+                <button class="btn" onclick="inputNum('7')">7</button>
+                <button class="btn" onclick="inputNum('8')">8</button>
+                <button class="btn" onclick="inputNum('9')">9</button>
+                <button class="btn btn-op" onclick="inputOp('+')">+</button>
+
+                <button class="btn" onclick="inputNum('4')">4</button>
+                <button class="btn" onclick="inputNum('5')">5</button>
+                <button class="btn" onclick="inputNum('6')">6</button>
+                <button class="btn btn-sci" onclick="inputNum('3.14159')">π</button>
+
+                <button class="btn" onclick="inputNum('1')">1</button>
+                <button class="btn" onclick="inputNum('2')">2</button>
+                <button class="btn" onclick="inputNum('3')">3</button>
+                <button class="btn btn-eq" onclick="runCalc()">=</button>
+
+                <button class="btn span-2" onclick="inputNum('0')">0</button>
+                <button class="btn" onclick="inputNum('.')">.</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="physics-module" class="module-card">
+        <h2>⚡ پردازشگر دینامیک و سینماتیک کنکور</h2><br>
+        <div class="flex-row">
+            <div class="input-group" style="flex:1;">
+                <label>سرعت اولیه (v₀)</label>
+                <input type="number" id="phy-v0" placeholder="m/s">
+            </div>
+            <div class="input-group" style="flex:1;">
+                <label>سرعت ثانویه (v)</label>
+                <input type="number" id="phy-v" placeholder="m/s">
+            </div>
+        </div>
+        <div class="flex-row">
+            <div class="input-group" style="flex:1;">
+                <label>شتاب حرکت (a)</label>
+                <input type="number" id="phy-a" placeholder="m/s²">
+            </div>
+            <div class="input-group" style="flex:1;">
+                <label>زمان (t)</label>
+                <input type="number" id="phy-t" placeholder="ثانیه">
+            </div>
+        </div>
+        <div class="input-group">
+            <label>جرم جسم (m - برای گشتاور و نیرو)</label>
+            <input type="number" id="phy-m" placeholder="کیلوگرم">
+        </div>
+        <button class="action-btn-trigger" onclick="solvePhysicsMega()">تحلیل و استخراج تمام مجهولات فیزیکی</button>
+        <div id="physics-output" class="result-panel">وارد کردن حداقل ۳ داده برای حل اتوماتیک الزامی است.</div>
+    </div>
+
+    <div id="chemistry-module" class="module-card">
+        <h2>🧪 موتور تجزیه فرمول و استوکیومتری شیمی</h2><br>
+        <div class="input-group">
+            <label>فرمول مولکولی ترکیب ترکیبی (حروف بزرگ حساس هستند)</label>
+            <input type="text" id="chem-formula" placeholder="مثال: H2SO4 یا C6H12O6 یا H2O">
+        </div>
+        <div class="flex-row">
+            <div class="input-group" style="flex:1;">
+                <label>مقدار عددی ماده ورودی</label>
+                <input type="number" id="chem-val" placeholder="مقدار را وارد کنید">
+            </div>
+            <div class="input-group" style="flex:1;">
+                <label>واحد داده ورودی</label>
+                <select id="chem-type">
+                    <option value="g">گرم (Gram)</option>
+                    <option value="m">مول (Mole)</option>
+                </select>
+            </div>
+        </div>
+        <div class="input-group">
+            <label>محاسبه pH اسید (در صورت وجود غلظت هیدرونیوم)</label>
+            <input type="number" id="chem-ph-input" step="any" placeholder="غلظت مولار [H⁺]">
+        </div>
+        <button class="action-btn-trigger" onclick="solveChemistryMega()">آنالیز جرمی و ساختاری اسید/باز</button>
+        <div id="chemistry-output" class="result-panel">نتیجه محاسبات استوکیومتری و جرم مولی اینجا ظاهر می‌شود.</div>
+    </div>
+
+    <div id="math-matrix" class="module-card">
+        <h2>📐 پردازشگر ماتریس ۳×۳ و مقاطع مخروطی</h2><br>
+        <label style="text-align:center; font-weight:600;">درایوهای ماتریس A را وارد کنید:</label><br>
+        <div class="matrix-grid">
+            <input type="number" id="m11" value="1"> <input type="number" id="m12" value="0"> <input type="number" id="m13" value="2">
+            <input type="number" id="m21" value="0"> <input type="number" id="m22" value="3"> <input type="number" id="m23" value="1">
+            <input type="number" id="m31" value="4"> <input type="number" id="m32" value="1"> <input type="number" id="m33" value="0">
+        </div>
+        <button class="action-btn-trigger" onclick="calcMatrixDeterminant()">محاسبه دترمینان ماتریس کنکور</button>
+        <div id="matrix-output" class="result-panel">نتیجه دترمینان...</div>
+    </div>
+
+    <div id="unit-converter" class="module-card">
+        <h2>⚖️ مبدل کلان سیستم‌های آکادمیک و کنکوری</h2><br>
+        <div class="flex-row">
+            <div class="input-group" style="flex:1;">
+                <label>مقدار اولیه</label>
+                <input type="number" id="unit-val" value="1" oninput="runUnitConversion()">
+            </div>
+            <div class="input-group" style="flex:1;">
+                <label>دسته بندی واحد</label>
+                <select id="unit-category" onchange="updateUnitOptions()">
+                    <option value="energy">انرژی (ژول، الکترون‌ولت، کالری)</option>
+                    <option value="pressure">فشار (پاسکال، اتمسفر، جیوه)</option>
+                    <option value="volume">حجم (لیتر، مترمکعب، سانتی‌مترمکعب)</option>
+                </select>
+            </div>
+        </div>
+        <div class="flex-row">
+            <div class="input-group" style="flex:1;">
+                <label>از واحد</label>
+                <select id="unit-from" onchange="runUnitConversion()"></select>
+            </div>
+            <div class="input-group" style="flex:1;">
+                <label>به واحد</label>
+                <select id="unit-to" onchange="runUnitConversion()"></select>
+            </div>
+        </div>
+        <div id="unit-output" class="result-panel" style="font-size:1.2rem; text-align:center; font-weight:600;">نتیجه تبدیل واحد</div>
+    </div>
+
+    <div id="konkur-timer" class="module-card">
+        <h2>⏱️ تایمر سنجش سرعت و درصدگیری آنلاین آزمون</h2><br>
+        <div style="text-align: center; font-size: 3rem; font-weight: 600; color: var(--danger);" id="k-clock">00:00</div><br>
+        <div class="flex-row">
+            <input type="number" id="k-correct" placeholder="تعداد درست">
+            <input type="number" id="k-wrong" placeholder="تعداد غلط">
+            <input type="number" id="k-total" placeholder="کل سوالات">
+        </div>
+        <div class="flex-row">
+            <button class="action-btn-trigger" style="background:#10b981;" onclick="startKonkurTimer()">شروع کرونومتر</button>
+            <button class="action-btn-trigger" style="background:#64748b;" onclick="stopKonkurTimer()">توقف</button>
+            <button class="action-btn-trigger" style="background:var(--danger);" onclick="calcKonkurPercent()">محاسبه درصد کنکور</button>
+        </div>
+        <div id="konkur-output" class="result-panel">سیستم آماده پایش سرعت تست‌زنی شماست.</div>
+    </div>
+
+    <div id="smart-notes" class="module-card">
+        <h2>📝 دفترچه یادداشت لوکال و فرمول‌بردار سردار</h2><br>
+        <textarea id="note-area" oninput="saveNoteLocal()" placeholder="فرمول‌های فرار، اشتباهات آزمون‌ها یا تله‌های تستی که امروز یاد گرفتی رو اینجا بنویس. این یادداشت‌ها با بستن مرورگر حذف نمیشن..."></textarea>
+        <div style="text-align:left; font-size:0.8rem; color:var(--success); margin-top:5px;">✓ ذخیره‌سازی خودکار فعال است</div>
+    </div>
+
+</div>
+
+<script>
+    // سوئیچ روتین بین ماژول‌ها بدون تداخل عملکردی
+    function switchModule(id, btn) {
+        document.querySelectorAll('.module-card').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    // سیستم تغییر تم سراسری
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+    }
+
+    // ================= ماژول ۱: ماشین حساب مهندسی =================
+    let cCurr = document.getElementById('calc-curr');
+    let cHist = document.getElementById('calc-hist');
+    let resetScreen = false;
+
+    function inputNum(n) {
+        if(cCurr.innerText === '0' || resetScreen) { cCurr.innerText = n; resetScreen = false; }
+        else { if(n==='.' && cCurr.innerText.includes('.')) return; cCurr.innerText += n; }
+    }
+    function inputOp(op) {
+        cHist.innerText += cCurr.innerText + ' ' + op + ' ';
+        resetScreen = true;
+    }
+    function clearCalc() { cCurr.innerText='0'; cHist.innerText=''; }
+    function delCalc() { cCurr.innerText = cCurr.innerText.length > 1 ? cCurr.innerText.slice(0,-1) : '0'; }
+
+    function sciCalc(type) {
+        let num = parseFloat(cCurr.innerText);
+        let res = 0;
+        if(isNaN(num)) return;
+        switch(type) {
+            case 'sin': res = Math.sin(num * Math.PI / 180); break;
+            case 'cos': res = Math.cos(num * Math.PI / 180); break;
+            case 'tan': res = Math.tan(num * Math.PI / 180); break;
+            case 'sqrt': res = Math.sqrt(num); break;
+            case 'log': res = Math.log10(num); break;
+            case 'ln': res = Math.log(num); break;
+        }
+        cCurr.innerText = parseFloat(res.toFixed(6)).toString();
+        resetScreen = true;
+    }
+    function runCalc() {
+        let expr = cHist.innerText + cCurr.innerText;
+        let parseExpr = expr.replace(/×/g, '*').replace(/÷/g, '/').replace(/%/g, '/100');
+        try {
+            let finalRes = new Function(`return ${parseExpr}`)();
+            cHist.innerText = expr + ' =';
+            cCurr.innerText = parseFloat(finalRes.toFixed(6)).toString();
+            resetScreen = true;
+        } catch { cCurr.innerText = 'Error'; resetScreen = true; }
+    }
+
+    // ================= ماژول ۲: موتور فیزیک مکانیک =================
+    function solvePhysicsMega() {
+        let v0 = document.getElementById('phy-v0').value !== '' ? parseFloat(document.getElementById('phy-v0').value) : null;
+        let v = document.getElementById('phy-v').value !== '' ? parseFloat(document.getElementById('phy-v').value) : null;
+        let a = document.getElementById('phy-a').value !== '' ? parseFloat(document.getElementById('phy-a').value) : null;
+        let t = document.getElementById('phy-t').value !== '' ? parseFloat(document.getElementById('phy-t').value) : null;
+        let m = document.getElementById('phy-m').value !== '' ? parseFloat(document.getElementById('phy-m').value) : null;
+        let out = document.getElementById('physics-output');
+        let dx = null;
+
+        // الگوریتم تکرار شبیه‌ساز روابط فیزیک دهم و دوازدهم
+        for(let i=0; i<3; i++) {
+            if(v0!==null && a!==null && t!==null && v===null) v = v0 + a*t;
+            if(v0!==null && v!==null && t!==null && a===null && t!==0) a = (v - v0)/t;
+            if(v0!==null && v!==null && a!==null && dx===null && a!==0) dx = (v*v - v0*v0)/(2*a);
+            if(v0!==null && a!==null && t!==null && dx===null) dx = v0*t + 0.5*a*t*t;
+            if(v!==null && a!==null && t!==null && v0===null) v0 = v - a*t;
+        }
+
+        if(v!==null && v0!==null && a!==null) {
+            let fNet = m !== null ? m * a : 'نامشخص (جرم وارد نشده)';
+            let kE = m !== null ? 0.5 * m * v * v : 'نامشخص';
+            out.innerHTML = `🏁 <b>تحلیل همه‌جانبه کینماتیک جسم:</b><br>
+                - سرعت اولیه: ${v0.toFixed(2)} m/s<br>- سرعت ثانویه: ${v.toFixed(2)} m/s<br>
+                - شتاب متحرک: ${a.toFixed(2)} m/s²<br>- جابجایی طی شده (Δx): ${dx !== null ? dx.toFixed(2) + ' متر' : 'نامشخص'}<br>
+                - برآیند نیروهای وارده (F): ${typeof fNet === 'number' ? fNet.toFixed(1) + ' نیوتون' : fNet}<br>
+                - انرژی جنبشی نهایی (K): ${typeof kE === 'number' ? kE.toFixed(1) + ' ژول' : kE}`;
+        } else { out.innerText = "داده‌های ورودی برای استخراج فرمول‌های مستقل از زمان کافی نیستند."; }
+    }
+
+    // ================= ماژول ۳: آزمایشگاه شیمی دیجیتال =================
+    const tableMass = { 'H':1, 'C':12, 'O':16, 'N':14, 'Na':23, 'Cl':35.5, 'S':32, 'Ca':40 };
+    function solveChemistryMega() {
+        let formula = document.getElementById('chem-formula').value.trim();
+        let amount = parseFloat(document.getElementById('chem-val').value);
+        let type = document.getElementById('chem-type').value;
+        let phIn = parseFloat(document.getElementById('chem-ph-input').value);
+        let out = document.getElementById('chemistry-output');
+
+        let molarMass = 0;
+        let matches = formula.match(/([A-Z][a-z]?)([0-9]*)/g);
+
+        if(matches) {
+            matches.forEach(m => {
+                let el = m.match(/[A-Za-z]+/)[0];
+                let count = m.match(/[0-9]+/) ? parseInt(m.match(/[0-9]+/)[0]) : 1;
+                if(tableMass[el]) molarMass += tableMass[el] * count;
+            });
+        }
+
+        if(molarMass === 0) molarMass = 18; // پیش‌فرض آب فرض می‌شود در صورت وجود ارور ساختاری پارسر
+        let gVal = type === 'm' ? amount * molarMass : amount;
+        let mVal = type === 'g' ? amount / molarMass : amount;
+
+        let phStr = !isNaN(phIn) && phIn > 0 ? (-Math.log10(phIn)).toFixed(2) : "وارد نشده";
+
+        out.innerHTML = `🔬 <b>گزارش آنالیز ذرات محلول:</b><br>
+            - جرم مولی محاسبه‌شده: ${molarMass} g/mol<br>
+            - هم‌ارز جرمی ترکیب: ${gVal.toFixed(2)} گرم<br>
+            - هم‌ارز مقدار ذرات: ${mVal.toFixed(3)} مول<br>
+            - تعداد کل اتم‌ها/مولکول‌ها: ${(mVal * 6.02e23).toExponential(2)} اتم<br>
+            - مقدار اسیدیته محاسباتی (pH): ${phStr}`;
+    }
+
+    // ================= ماژول ۴: جبر خطی و ماتریس =================
+    function calcMatrixDeterminant() {
+        let m11 = parseFloat(document.getElementById('m11').value);
+        let m12 = parseFloat(document.getElementById('m12').value);
+        let m13 = parseFloat(document.getElementById('m13').value);
+        let m21 = parseFloat(document.getElementById('m21').value);
+        let m22 = parseFloat(document.getElementById('m22').value);
+        let m23 = parseFloat(document.getElementById('m23').value);
+        let m31 = parseFloat(document.getElementById('m31').value);
+        let m32 = parseFloat(document.getElementById('m32').value);
+        let m33 = parseFloat(document.getElementById('m33').value);
+
+        let det = m11*(m22*m33 - m23*m32) - m12*(m21*m33 - m23*m31) + m13*(m21*m32 - m22*m31);
+        document.getElementById('matrix-output').innerHTML = `📐 <b>نتیجه خطی ماتریس A:</b><br> دترمینان نهایی برابر است با: <b>${det}</b>`;
+    }
+
+    // ================= ماژول ۵: سیستم کلان مبدل واحدها =================
+    const unitsData = {
+        energy: { 'ژول': 1, 'الکترون‌ولت': 1.602e-19, 'کالری': 4.184 },
+        pressure: { 'پاسکال': 1, 'اتمسفر': 101325, 'میلی‌متر جیوه': 133.322 },
+        volume: { 'مترمکعب': 1, 'لیتر': 0.001, 'سانتی‌مترمکعب (cc)': 1e-6 }
+    };
+
+    function updateUnitOptions() {
+        let cat = document.getElementById('unit-category').value;
+        let fromSel = document.getElementById('unit-from');
+        let toSel = document.getElementById('unit-to');
+        fromSel.innerHTML = ''; toSel.innerHTML = '';
+        Object.keys(unitsData[cat]).forEach(u => {
+            fromSel.innerHTML += `<option value="${u}">${u}</option>`;
+            toSel.innerHTML += `<option value="${u}">${u}</option>`;
+        });
+        runUnitConversion();
+    }
+
+    function runUnitConversion() {
+        let cat = document.getElementById('unit-category').value;
+        let val = parseFloat(document.getElementById('unit-val').value);
+        let from = document.getElementById('unit-from').value;
+        let to = document.getElementById('unit-to').value;
+        if(isNaN(val)) return;
+
+        let valInBase = val * unitsData[cat][from];
+        let finalVal = valInBase / unitsData[cat][to];
+        document.getElementById('unit-output').innerText = `${val} ${from} = ${finalVal.toExponential(4)} ${to}`;
+    }
+
+    // ================= ماژول ۶: پایشگر آنلاین آزمون و درصد کنکور =================
+    let timerSec = 0, timerId = null;
+    function startKonkurTimer() {
+        if(!timerId) {
+            timerId = setInterval(() => {
+                timerSec++;
+                let m = Math.floor(timerSec/60).toString().padStart(2,'0');
+                let s = (timerSec%60).toString().padStart(2,'0');
+                document.getElementById('k-clock').innerText = `${m}:${s}`;
+            }, 1000);
+        }
+    }
+    function stopKonkurTimer() { clearInterval(timerId); timerId = null; }
+    function calcKonkurPercent() {
+        let r = parseInt(document.getElementById('k-correct').value) || 0;
+        let w = parseInt(document.getElementById('k-wrong').value) || 0;
+        let t = parseInt(document.getElementById('k-total').value) || 1;
+        let pct = ((r * 3 - w) / (t * 3)) * 100;
+        document.getElementById('konkur-output').innerHTML = `📊 <b>کارنامه آنالیز سرعت:</b><br>- درصد کسب‌شده در درس: <b>${pct.toFixed(1)}%</b><br>- زمان صرف‌شده: ${Math.floor(timerSec/60)} دقیقه`;
+    }
+
+    // ================= ماژول ۷: حافظه هوشمند لوکال متنی =================
+    function saveNoteLocal() {
+        localStorage.setItem('sardar_mega_note', document.getElementById('note-area').value);
+    }
+    window.onload = () => {
+        updateUnitOptions();
+        if(localStorage.getItem('sardar_mega_note')) {
+            document.getElementById('note-area').value = localStorage.getItem('sardar_mega_note');
+        }
+    };
+</script>
+</body>
+</html>
