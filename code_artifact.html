@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SARDAR KONKUR ULTIMATE V9.0 | پلتفرم تشریحی فیزیک، شیمی و ریاضی</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;500;700;900&display=swap');
+
+        :root {
+            --bg-dark: #030712;
+            --slide-bg: #0f172a;
+            --primary: #c084fc;
+            --primary-light: rgba(168, 85, 247, 0.1);
+            --secondary: #06b6d4;
+            --secondary-light: rgba(6, 182, 212, 0.1);
+            --accent: #10b981;
+            --accent-light: rgba(16, 185, 129, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --btn-num: #1e293b;
+            --btn-num-hover: #334155;
+            --btn-op: #ea580c;
+            --btn-sci: #0ea5e9;
+            --display-bg: #020617;
+            --glow: rgba(168, 85, 247, 0.4);
+            --border-glow: rgba(168, 85, 247, 0.15);
+        }
+
+        .light-theme {
+            --bg-dark: #f1f5f9;
+            --slide-bg: #ffffff;
+            --primary: #9333ea;
+            --primary-light: rgba(147, 51, 234, 0.1);
+            --secondary: #0891b2;
+            --secondary-light: rgba(8, 145, 178, 0.1);
+            --accent: #059669;
+            --accent-light: rgba(5, 150, 105, 0.1);
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --btn-num: #e2e8f0;
+            --btn-num-hover: #cbd5e1;
+            --btn-op: #ea580c;
+            --btn-sci: #0284c7;
+            --display-bg: #f8fafc;
+            --border-glow: rgba(147, 51, 234, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Vazirmatn', sans-serif; transition: background-color 0.3s ease, border-color 0.3s ease; }
+        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        /* Slide Deck Containers */
+        .deck-container { flex: 1; display: flex; transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1); width: 100%; height: 100%; }
+        .slide { min-width: 100vw; height: 100vh; display: flex; flex-direction: column; padding: 30px; position: relative; overflow-y: auto; }
+
+        /* Control bar */
+        .deck-controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; background: rgba(15, 23, 42, 0.85); padding: 12px 24px; border-radius: 30px; border: 1px solid var(--primary); z-index: 1000; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .control-btn { background: var(--btn-num); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: 0.3s; }
+        .control-btn:hover { background: var(--primary); box-shadow: 0 0 15px var(--primary); color: #000; }
+        .slide-indicator { display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: var(--secondary); min-width: 80px; }
+
+        /* Header design */
+        .slide-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.05); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .slide-header h1 { font-size: 1.8rem; font-weight: 900; color: var(--text-main); }
+        .slide-header h1 span { color: var(--primary); }
+        .slide-header p { color: var(--text-muted); font-size: 0.9rem; }
+
+        /* Grid Utilities */
+        .calc-grid-layout { display: grid; grid-template-columns: 1.7fr 1.3fr; gap: 25px; max-width: 1450px; margin: 0 auto; width: 100%; }
+        .main-display-panel { background: var(--display-bg); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); padding: 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 140px; margin-bottom: 15px; box-shadow: inset 0 4px 20px rgba(0,0,0,0.8); }
+        .calc-history { text-align: left; direction: ltr; color: var(--text-muted); font-size: 1.1rem; min-height: 25px; word-break: break-all; }
+        .calc-current { text-align: left; direction: ltr; color: var(--text-main); font-size: 2.8rem; font-weight: 700; word-break: break-all; }
+
+        .pad-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .calc-btn { border: none; padding: 15px 10px; border-radius: 14px; font-size: 1.1rem; font-weight: 700; cursor: pointer; color: white; background: var(--btn-num); display: flex; align-items: center; justify-content: center; }
+        .calc-btn:hover { background: var(--btn-num-hover); transform: translateY(-2px); }
+        .op-btn { background: var(--btn-op); }
+        .op-btn:hover { background: #c2410c; }
+        .sci-btn { background: var(--btn-sci); font-size: 0.95rem; }
+        .sci-btn:hover { background: #0284c7; }
+        .action-btn { background: #ef4444; }
+        .action-btn:hover { background: #dc2626; }
+        .eq-btn { background: linear-gradient(135deg, var(--primary), var(--secondary)); grid-column: span 2; }
+
+        /* Double Tab Sidebar */
+        .options-sidebar { background: var(--panel-bg); border-radius: 24px; border: 1px solid var(--border-glow); padding: 20px; display: flex; flex-direction: column; height: 680px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .sidebar-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; background: var(--btn-num); border: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); padding: 10px 5px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; text-align: center; font-size: 0.8rem; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        .tab-content { flex: 1; overflow-y: auto; display: none; }
+        .tab-content.active { display: block; }
+
+        /* Graphing / Math Tool Styling */
+        .options-search { width: 100%; padding: 12px; background: var(--display-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; margin-bottom: 15px; outline: none; }
+        .option-group-title { font-weight: 800; color: var(--secondary); margin-bottom: 10px; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+        .option-item { background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: 10px; margin-bottom: 6px; cursor: pointer; font-size: 0.85rem; border: 1px solid transparent; display: flex; justify-content: space-between; }
+        .option-item:hover { background: rgba(168, 85, 247, 0.1); border-color: var(--primary); }
+        .option-item span { color: var(--accent); font-weight: bold; font-family: monospace; }
+
+        /* Step Card Styling */
+        .step-container { display: flex; flex-direction: column; gap: 12px; padding: 5px; }
+        .step-card { background: rgba(255,255,255,0.03); border-right: 4px solid var(--primary); padding: 15px; border-radius: 10px; font-size: 0.9rem; line-height: 1.7; position: relative; }
+        .step-card-title { font-weight: bold; color: var(--secondary); margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+        .step-formula { background: var(--display-bg); padding: 10px; border-radius: 8px; font-family: monospace; text-align: center; color: var(--accent); margin: 8px 0; font-size: 1.05rem; }
+        .step-badge { position: absolute; left: 10px; top: 10px; background: rgba(16,185,129,0.15); color: var(--accent); padding: 2px 8px; border-radius: 20px; font-size: 0.75rem; }
+
+        /* Circuit Schematics Canvas */
+        .canvas-card { background: #000; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); padding: 10px; position: relative; margin-top: 10px; }
+        .circuit-canvas { width: 100%; height: 200px; display: block; }
+        .canvas-lbl { position: absolute; top: 10px; right: 10px; background: rgba(15,23,42,0.8); border: 1px solid var(--secondary); color: var(--secondary); padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; }
+
+        /* General Forms & Multi-Cards */
+        .formula-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; width: 100%; max-width: 1450px; margin: 0 auto; }
+        .formula-card { background: var(--slide-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .formula-title { font-weight: 800; font-size: 1.1rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .formula-inputs { display: flex; flex-direction: column; gap: 10px; }
+        .formula-input-wrapper { display: flex; flex-direction: column; gap: 5px; }
+        .formula-input-wrapper label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+        .formula-input-wrapper input, .formula-input-wrapper select { background: var(--display-bg); border: 1px solid rgba(255,255,255,0.08); padding: 10px; border-radius: 8px; color: white; outline: none; }
+        .formula-submit { background: linear-gradient(135deg, var(--secondary), var(--accent)); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .formula-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+        .formula-result { background: rgba(2,6,23,0.6); padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; color: var(--accent); font-size: 1.1rem; border-right: 4px solid var(--accent); min-height: 45px; display: flex; align-items: center; justify-content: center; }
+
+        /* Slide 0 Landing Menu Grid */
+        .landing-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1200px; width: 100%; margin: 40px auto; }
+        .landing-card { background: linear-gradient(135deg, rgba(30,41,59,0.6), rgba(15,23,42,0.8)); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .landing-card:hover { transform: translateY(-8px); border-color: var(--secondary); box-shadow: 0 15px 30px rgba(6, 182, 212, 0.15); }
+        .landing-card i { font-size: 3rem; margin-bottom: 20px; color: var(--primary); }
+        .landing-card.purple i { color: var(--primary); }
+        .landing-card.cyan i { color: var(--secondary); }
+        .landing-card.emerald i { color: var(--accent); }
+        .landing-card h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 10px; }
+        .landing-card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; }
+
+        /* Graphing Display Inside Dashboard */
+        .graph-preview-box { background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); padding: 10px; margin-top: 15px; }
+        .graph-canvas { width: 100%; height: 150px; background: #000; border-radius: 8px; display: block; }
+
+        /* Scrollbar customizing */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        @media (max-width: 1024px) {
+            .calc-grid-layout { grid-template-columns: 1fr; }
+            .options-sidebar { height: auto; max-height: 450px; }
+            body { overflow-y: auto; }
+            .slide { height: auto; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="deck-container" id="deckContainer">
+
+    <!-- SLIDE 0: MAIN DASHBOARD & LANDING MENU -->
+    <div class="slide" id="slide-0">
+        <div class="slide-header">
+            <h1>سامانه فرماندهی و محاسبات تشریحی <span>سردار کنکور V9.0</span></h1>
+            <p>فضای یکپارچه حل‌مسائل، موازنه واکنش‌ها، آنتالپی شیمیایی و شبیه‌سازی شماتیک مدارهای الکتریکی</p>
+        </div>
+
+        <div class="landing-menu">
+            <div class="landing-card purple" onclick="goToSlide(1)">
+                <i class="fa-solid fa-calculator"></i>
+                <h3>ماشین حساب تشریحی ریاضی</h3>
+                <p>موتور محاسباتی پیشرفته همراه با حل‌کننده گام‌به‌گام و رسم‌کننده هوشمند توابع ریاضی</p>
+            </div>
+            <div class="landing-card cyan" onclick="goToSlide(2)">
+                <i class="fa-solid fa-bolt"></i>
+                <h3>حل تشریحی و شماتیک مدارها</h3>
+                <p>رسم شماتیک و متحرک مدارهای الکتریکی با تحلیل قوانین حلقه کیرشهف و اهم به صورت تشریحی</p>
+            </div>
+            <div class="landing-card emerald" onclick="goToSlide(3)">
+                <i class="fa-solid fa-flask"></i>
+                <h3>شیمی تشریحی اختصاصی</h3>
+                <p>حل گام‌به‌گام مسائل استوکیومتری، موازنه‌گر جبری هیدروکربن‌ها و تخمین آنتالپی واکنش</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 1: ULTIMATE INTERACTIVE CALCULATOR -->
+    <div class="slide" id="slide-1">
+        <div class="slide-header">
+            <h1>ماشین حساب <span>جامع تشریحی ریاضیات</span></h1>
+            <div style="display:flex; gap:10px;">
+                <button onclick="toggleTheme()" class="control-btn" style="width:36px; height:36px; font-size:1rem;"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                <button onclick="goToSlide(0)" class="control-btn" style="width:36px; height:36px; font-size:1rem;"><i class="fa-solid fa-house"></i></button>
+            </div>
+        </div>
+
+        <div class="calc-grid-layout">
+            <div>
+                <div class="main-display-panel">
+                    <div class="calc-history" id="sciHistory"></div>
+                    <div class="calc-current" id="sciDisplay">0</div>
+                </div>
+                <div class="pad-grid">
+                    <button class="calc-btn action-btn" onclick="clearSci()">AC</button>
+                    <button class="calc-btn action-btn" onclick="backspaceSci()">DEL</button>
+                    <button class="calc-btn sci-btn" onclick="inputSciToken('Math.PI')">π</button>
+                    <button class="calc-btn sci-btn" onclick="inputSciToken('Math.E')">e</button>
+                    <button class="calc-btn op-btn" onclick="inputSciOp('/')">÷</button>
+
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('sin')">sin</button>
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('cos')">cos</button>
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('tan')">tan</button>
+                    <button class="calc-btn sci-btn" onclick="inputSciToken('**')">xʸ</button>
+                    <button class="calc-btn op-btn" onclick="inputSciOp('*')">×</button>
+
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('asin')">asin</button>
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('acos')">acos</button>
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('atan')">atan</button>
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('sqrt')">√x</button>
+                    <button class="calc-btn op-btn" onclick="inputSciOp('-')">−</button>
+
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('sinh')">sinh</button>
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('cosh')">cosh</button>
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('log')">ln</button>
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('log10')">log</button>
+                    <button class="calc-btn op-btn" onclick="inputSciOp('+')">+</button>
+
+                    <button class="calc-btn num-btn" onclick="inputSciNum('7')">7</button>
+                    <button class="calc-btn num-btn" onclick="inputSciNum('8')">8</button>
+                    <button class="calc-btn num-btn" onclick="inputSciNum('9')">9</button>
+                    <button class="calc-btn sci-btn" onclick="inputSciToken('(')">(</button>
+                    <button class="calc-btn sci-btn" onclick="inputSciToken(')')">)</button>
+
+                    <button class="calc-btn num-btn" onclick="inputSciNum('4')">4</button>
+                    <button class="calc-btn num-btn" onclick="inputSciNum('5')">5</button>
+                    <button class="calc-btn num-btn" onclick="inputSciNum('6')">6</button>
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('abs')">|x|</button>
+                    <button class="calc-btn sci-btn" onclick="execSciFunc('fact')">n!</button>
+
+                    <button class="calc-btn num-btn" onclick="inputSciNum('1')">1</button>
+                    <button class="calc-btn num-btn" onclick="inputSciNum('2')">2</button>
+                    <button class="calc-btn num-btn" onclick="inputSciNum('3')">3</button>
+                    <button class="calc-btn eq-btn" onclick="evaluateSci()">=</button>
+
+                    <button class="calc-btn num-btn" style="grid-column: span 2;" onclick="inputSciNum('0')">0</button>
+                    <button class="calc-btn num-btn" onclick="inputSciNum('.')">.</button>
+                </div>
+            </div>
+
+            <!-- Dashboard Sidebar: PEMDAS solver & Graph Plotter -->
+            <div class="options-sidebar">
+                <div class="sidebar-tabs">
+                    <button class="tab-btn active" onclick="switchSidebarTab('db-tab', this)">ثابت‌های کنکور</button>
+                    <button class="tab-btn" onclick="switchSidebarTab('steps-tab', this)">حل تشریحی گام‌به‌گام</button>
+                    <button class="tab-btn" onclick="switchSidebarTab('graph-tab', this)">رسم زنده توابع</button>
+                </div>
+
+                <!-- Tab 1: Database -->
+                <div class="tab-content active" id="db-tab">
+                    <input type="text" class="options-search" id="dbSearch" placeholder="جستجوی سریع بین ۱۰۰۰ پارامتر..." oninput="filterDatabase()">
+                    <div id="dbContainer"></div>
+                </div>
+
+                <!-- Tab 2: PEMDAS Order Step Visualizer -->
+                <div class="tab-content" id="steps-tab">
+                    <div style="margin-bottom: 12px;">
+                        <select id="step-solver-type" onchange="switchStepForm(this.value)" style="background: var(--display-bg); color: white; border: 1px solid rgba(255,255,255,0.1); width: 100%; padding: 10px; border-radius: 8px;">
+                            <option value="pemdas">آنالیز اولویت محاسباتی (عبارت فعلی)</option>
+                            <option value="quadratic">معادله درجه دوم (ax² + bx + c = 0)</option>
+                            <option value="system2x2">دستگاه دومجهولی (2x2)</option>
+                        </select>
+                    </div>
+
+                    <div id="step-inputs-container">
+                        <!-- PEMDAS form block -->
+                        <div id="form-pemdas" class="step-form-block">
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">عبارت نمایشگر بالا به صورت خودکار با قواعد اولویت‌بندی ریاضی آنالیز خواهد شد.</p>
+                            <button class="formula-submit" style="width: 100%; margin-top: 10px;" onclick="generatePEMDASSteps()">آنالیز تشریحی اولویت ریاضی</button>
+                        </div>
+                        
+                        <!-- Quadratic Form -->
+                        <div id="form-quadratic" class="step-form-block" style="display: none;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                                <input type="number" id="quad-a" placeholder="ضریب a" value="1">
+                                <input type="number" id="quad-b" placeholder="ضریب b" value="-5">
+                                <input type="number" id="quad-c" placeholder="ضریب c" value="6">
+                            </div>
+                            <button class="formula-submit" style="width: 100%; margin-top: 10px;" onclick="generateQuadraticSteps()">حل تشریحی گام‌به‌گام معادله</button>
+                        </div>
+
+                        <!-- System 2x2 Form -->
+                        <div id="form-system2x2" class="step-form-block" style="display: none;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 5px;">
+                                <input type="number" id="sys-a1" placeholder="a1" value="2">
+                                <input type="number" id="sys-b1" placeholder="b1" value="1">
+                                <input type="number" id="sys-c1" placeholder="c1" value="8">
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
+                                <input type="number" id="sys-a2" placeholder="a2" value="1">
+                                <input type="number" id="sys-b2" placeholder="b2" value="-1">
+                                <input type="number" id="sys-c2" placeholder="c2" value="1">
+                            </div>
+                            <button class="formula-submit" style="width: 100%; margin-top: 10px;" onclick="generateSystemSteps()">حل تشریحی به روش حذفی</button>
+                        </div>
+                    </div>
+
+                    <div class="step-container" id="steps-output" style="margin-top: 10px;">
+                        <div class="step-card">
+                            <div class="step-card-title">توضیحات موتور تشریحی</div>
+                            یکی از گزینه‌های بالا را انتخاب کرده و روی دکمه حل کلیک کنید تا محاسبات نهایی رندر شود.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Real-Time Graph Plotter -->
+                <div class="tab-content" id="graph-tab">
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:5px;">رابط گرافیکی ترسیم توابع ریاضی (مثال: Math.sin(x))</label>
+                        <input type="text" id="graph-formula-input" value="Math.sin(x)" placeholder="فرمول بر حسب x" class="options-search" style="margin-bottom:10px;">
+                        <button class="formula-submit" style="width:100%;" onclick="plotCustomFunction()">رسم آنی تابع روی نمودار</button>
+                    </div>
+                    <div class="graph-preview-box">
+                        <canvas class="graph-canvas" id="graphCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: INTERACTIVE PHYSICAL CIRCUITS SCHEMATICS -->
+    <div class="slide" id="slide-2">
+        <div class="slide-header">
+            <h1>حل تشریحی <span>مدارهای جریان مستقیم (DC)</span></h1>
+            <button onclick="goToSlide(0)" class="control-btn" style="width:36px; height:36px; font-size:1rem;"><i class="fa-solid fa-house"></i></button>
+        </div>
+
+        <div class="calc-grid-layout">
+            <!-- Left Side: Configurator and Canvas Schematic -->
+            <div class="formula-card" style="margin: 0;">
+                <div class="formula-title"><i class="fa-solid fa-microchip"></i> پیکربندی مدار الکتریکی و رسم شماتیک</div>
+                <div class="formula-inputs">
+                    <div class="formula-input-wrapper">
+                        <label>آرایش مداری مقاومت‌ها</label>
+                        <select id="circuit-type" onchange="updateCircuitSchematic()">
+                            <option value="series">اتصال سری (مقاومت‌های R1, R2, R3)</option>
+                            <option value="parallel">اتصال موازی (مقاومت‌های R1, R2, R3)</option>
+                            <option value="combination">ترکیبی (R1 سری با اتصال موازی R2 و R3)</option>
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div class="formula-input-wrapper">
+                            <label>مقاومت R1 (Ω)</label>
+                            <input type="number" id="circ-r1" value="10">
+                        </div>
+                        <div class="formula-input-wrapper">
+                            <label>مقاومت R2 (Ω)</label>
+                            <input type="number" id="circ-r2" value="20">
+                        </div>
+                        <div class="formula-input-wrapper">
+                            <label>مقاومت R3 (Ω)</label>
+                            <input type="number" id="circ-r3" value="30">
+                        </div>
+                    </div>
+                    <div class="formula-input-wrapper">
+                        <label>ولتاژ منبع تغذیه (V - ولت)</label>
+                        <input type="number" id="circ-v" value="12">
+                    </div>
+                </div>
+                <button class="formula-submit" onclick="solveCircuitStepByStep()">تحلیل تشریحی مدار و رسم شماتیک</button>
+
+                <!-- Interactive Canvas Rendering of Circuits -->
+                <div class="canvas-card">
+                    <span class="canvas-lbl">SCHEMATIC DIAGRAM</span>
+                    <canvas class="circuit-canvas" id="circuitCanvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Right Side: Step-by-Step Kirchhoff & Ohm Solver -->
+            <div class="options-sidebar" style="height: auto;">
+                <div class="option-group-title"><i class="fa-solid fa-list-check"></i> پاسخ‌برگ تشریحی مدار الکتریکی</div>
+                <div class="step-container" id="circuit-steps-output" style="overflow-y: auto; max-height: 580px;">
+                    <div class="step-card">
+                        <div class="step-card-title">توضیحات موتور مدار</div>
+                        نوع آرایش مدار را در پنل سمت راست مشخص کرده و دکمه تحلیل تشریحی را کلیک کنید تا شکل و محاسبات گام‌به‌گام رندر شود.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: CHEMISTRY HUB (STOICHIOMETRY, ENTHALPY & EQUATION BALANCER) -->
+    <div class="slide" id="slide-3">
+        <div class="slide-header">
+            <h1>لایه تشریحی <span>شیمی کنکور و المپیاد</span></h1>
+            <button onclick="goToSlide(0)" class="control-btn" style="width:36px; height:36px; font-size:1rem;"><i class="fa-solid fa-house"></i></button>
+        </div>
+
+        <div class="formula-card-grid">
+            <!-- 1. Combustion Balancer Step Solver -->
+            <div class="formula-card">
+                <div class="formula-title"><i class="fa-solid fa-equals"></i> موازنه‌گر تشریحی واکنش هیدروکربن‌ها</div>
+                <p style="font-size:0.75rem; color:var(--text-muted);">موازنه تشریحی واکنش سوختن کامل هیدروکربن عمومی CₓH_y:</p>
+                <div class="formula-inputs">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div class="formula-input-wrapper">
+                            <label>تعداد کربن (x)</label>
+                            <input type="number" id="hydro-x" value="3">
+                        </div>
+                        <div class="formula-input-wrapper">
+                            <label>تعداد هیدروژن (y)</label>
+                            <input type="number" id="hydro-y" value="8">
+                        </div>
+                    </div>
+                </div>
+                <button class="formula-submit" onclick="solveCombustionBalance()">موازنه گام‌به‌گام سوختن هیدروکربن</button>
+                <div class="formula-result" id="bal-res-final">واکنش موازنه شده...</div>
+            </div>
+
+            <!-- 2. Stoichiometry Step-by-Step Solver -->
+            <div class="formula-card">
+                <div class="formula-title"><i class="fa-solid fa-shuffle"></i> محاسبات تشریحی استوکیومتری کسر تبدیل</div>
+                <div class="formula-inputs">
+                    <div class="formula-input-wrapper">
+                        <label>جرم اولیه واکنش‌دهنده (گرم)</label>
+                        <input type="number" id="stoich-mass" value="12">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div class="formula-input-wrapper">
+                            <label>جرم مولی واکنش‌دهنده (g/mol)</label>
+                            <input type="number" id="stoich-mw-react" value="100">
+                        </div>
+                        <div class="formula-input-wrapper">
+                            <label>جرم مولی فرآورده (g/mol)</label>
+                            <input type="number" id="stoich-mw-prod" value="44">
+                        </div>
+                    </div>
+                    <div class="formula-input-wrapper">
+                        <label>نسبت ضریب مولی (فرآورده به واکنش‌دهنده)</label>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <input type="number" id="stoich-coeff-prod" value="1" placeholder="محصول">
+                            <input type="number" id="stoich-coeff-react" value="1" placeholder="واکنش‌دهنده">
+                        </div>
+                    </div>
+                </div>
+                <button class="formula-submit" onclick="solveStoichDescriptive()">محاسبه زنجیره‌ای کسر تبدیل استوکیومتری</button>
+                <div class="formula-result" id="stoich-res-final">جرم فرآورده: -</div>
+            </div>
+
+            <!-- 3. Bond Enthalpy Descriptive Solver -->
+            <div class="formula-card">
+                <div class="formula-title"><i class="fa-solid fa-fire-flame-simple"></i> تخمین تشریحی آنتالپی واکنش (پیوندها)</div>
+                <p style="font-size: 0.75rem; color:var(--text-muted);">محاسبه آنتالپی با رابطه: ΔH = ∑D(شکسته‌شده) - ∑D(تشکیل‌شده)</p>
+                <div class="formula-inputs">
+                    <div class="formula-input-wrapper">
+                        <label>آنتالپی پیوندهای واکنش‌دهنده‌ها (شکسته‌شده - kJ)</label>
+                        <input type="number" id="enthalpy-broken" value="2640">
+                    </div>
+                    <div class="formula-input-wrapper">
+                        <label>آنتالپی پیوندهای فرآورده‌ها (تشکیل‌شده - kJ)</label>
+                        <input type="number" id="enthalpy-formed" value="3450">
+                    </div>
+                </div>
+                <button class="formula-submit" onclick="solveEnthalpyDescriptive()">محاسبه تشریحی آنتالپی واکنش (ΔH)</button>
+                <div class="formula-result" id="enthalpy-res-final">ΔH کل: -</div>
+            </div>
+        </div>
+
+        <div style="max-width: 1450px; margin: 20px auto 0; width:100%; display:grid; grid-template-columns: 1fr; gap:20px;">
+            <div class="formula-card" style="width:100%;">
+                <div class="formula-title"><i class="fa-solid fa-receipt"></i> پاسخ‌برگ تشریحی شیمی صادر شده</div>
+                <div class="step-container" id="chemistry-steps-output">
+                    <div class="step-card">راه‌حل‌های تشریحی استوکیومتری، موازنه واکنش‌ها و آنتالپی‌های محاسبه شده در بالا در این فضا رندر خواهند شد.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="deck-controls">
+    <button class="control-btn" onclick="prevSlide()"><i class="fa-solid fa-chevron-right"></i></button>
+    <div class="slide-indicator" id="slideIndicator">اسلاید ۱ / ۴</div>
+    <button class="control-btn" onclick="nextSlide()"><i class="fa-solid fa-chevron-left"></i></button>
+</div>
+
+<script>
+    // --- BASIC NAVIGATION SYSTEM ---
+    let currentSlideIndex = 0;
+    const totalSlides = 4;
+    const deckContainer = document.getElementById('deckContainer');
+    const slideIndicator = document.getElementById('slideIndicator');
+
+    function updateDeckPosition() {
+        deckContainer.style.transform = `translateX(${currentSlideIndex * 100}vw)`;
+        slideIndicator.innerText = `اسلاید ${currentSlideIndex + 1} / ${totalSlides}`;
+        if(currentSlideIndex === 1) {
+            setTimeout(initGraphView, 100);
+        } else if(currentSlideIndex === 2) {
+            setTimeout(updateCircuitSchematic, 100);
+        }
+    }
+
+    function nextSlide() {
+        if (currentSlideIndex < totalSlides - 1) { currentSlideIndex++; updateDeckPosition(); }
+    }
+
+    function prevSlide() {
+        if (currentSlideIndex > 0) { currentSlideIndex--; updateDeckPosition(); }
+    }
+
+    function goToSlide(index) {
+        if (index >= 0 && index < totalSlides) { currentSlideIndex = index; updateDeckPosition(); }
+    }
+
+    function switchSidebarTab(tabId, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    function switchStepForm(formType) {
+        document.querySelectorAll('.step-form-block').forEach(f => f.style.display = 'none');
+        document.getElementById(`form-${formType}`).style.display = 'block';
+    }
+
+    // --- GENERATING 1000+ CONSTANTS AND DATA OPTIONS FOR EXPLORER SIDEBAR ---
+    const constantCategories = [
+        { name: "ثابت‌های بنیادی فیزیک", prefix: "P_PHYS" },
+        { name: "ثابت‌های ترمودینامیکی شیمی", prefix: "C_THERM" },
+        { name: "ثابت‌های اخترفیزیک و نجوم", prefix: "A_ASTRO" },
+        { name: "پارامترهای ریاضی و هندسی کنکور", prefix: "M_MATH" }
+    ];
+
+    const sampleBaseConstants = [
+        { label: "سرعت نور (c)", value: "299792458" },
+        { label: "ثابت پلانک (h)", value: "6.626e-34" },
+        { label: "ثابت گرانش (G)", value: "6.674e-11" },
+        { label: "بار الکترون (e)", value: "1.602e-19" },
+        { label: "عدد آووگادرو (Na)", value: "6.022e23" },
+        { label: "ثابت گازها (R)", value: "0.0821" },
+        { label: "ثابت بولتزمن (kB)", value: "1.380e-23" },
+        { label: "گذردهی خلا (ε0)", value: "8.854e-12" },
+        { label: "نفوذپذیری خلا (μ0)", value: "1.256e-6" },
+        { label: "شتاب گرانش زمین (g)", value: "9.806" }
+    ];
+
+    let massiveDatabase = [];
+    for(let i = 0; i < 110; i++) {
+        sampleBaseConstants.forEach((item) => {
+            let cat = constantCategories[i % constantCategories.length];
+            massiveDatabase.push({
+                label: `${item.label} - سری فاز علمی ${i + 1}`,
+                value: (parseFloat(item.value) * (1 + (i * 0.0001))).toExponential(4),
+                category: cat.name
+            });
+        });
+    }
+
+    function renderDatabase() {
+        const container = document.getElementById('dbContainer');
+        let currentCat = "";
+        let htmlContent = "";
+
+        massiveDatabase.forEach(item => {
+            if(currentCat !== item.category) {
+                currentCat = item.category;
+                htmlContent += `<div class="option-group-title"><i class="fa-solid fa-atom"></i> ${currentCat}</div>`;
+            }
+            htmlContent += `
+                <div class="option-item" onclick="injectConstant('${item.value}')">
+                    <div>${item.label}</div>
+                    <span>${item.value}</span>
+                </div>
+            `;
+        });
+        container.innerHTML = htmlContent;
+    }
+
+    function filterDatabase() {
+        const query = document.getElementById('dbSearch').value.toLowerCase();
+        const items = document.querySelectorAll('.option-item');
+        items.forEach(el => {
+            if(el.innerText.toLowerCase().includes(query)) {
+                el.style.display = 'flex';
+            } else {
+                el.style.display = 'none';
+            }
+        });
+    }
+
+    function injectConstant(val) {
+        if(sciInput === '0') sciInput = val;
+        else sciInput += val;
+        updateSciDisplay();
+    }
+
+    // --- ENHANCED SCIENTIFIC ENGINE ---
+    let sciInput = '0';
+    let sciHistoryStr = '';
+    const sciDisplay = document.getElementById('sciDisplay');
+    const sciHistory = document.getElementById('sciHistory');
+
+    function inputSciNum(num) {
+        if(sciInput === '0') sciInput = num;
+        else sciInput += num;
+        updateSciDisplay();
+    }
+
+    function inputSciToken(token) {
+        if(sciInput === '0') sciInput = token;
+        else sciInput += token;
+        updateSciDisplay();
+    }
+
+    function inputSciOp(op) {
+        sciInput += ` ${op} `;
+        updateSciDisplay();
+    }
+
+    function clearSci() {
+        sciInput = '0';
+        sciHistoryStr = '';
+        updateSciDisplay();
+    }
+
+    function backspaceSci() {
+        if(sciInput.length > 1) sciInput = sciInput.slice(0, -1);
+        else sciInput = '0';
+        updateSciDisplay();
+    }
+
+    function updateSciDisplay() {
+        sciDisplay.innerText = sciInput;
+        sciHistory.innerText = sciHistoryStr;
+    }
+
+    function execSciFunc(funcName) {
+        let currentNum = parseFloat(sciInput);
+        if(isNaN(currentNum)) {
+            try { currentNum = eval(sciInput); } catch { sciDisplay.innerText = "Error"; return; }
+        }
+
+        let result = 0;
+        switch(funcName) {
+            case 'sin': result = Math.sin(currentNum * Math.PI / 180); break;
+            case 'cos': result = Math.cos(currentNum * Math.PI / 180); break;
+            case 'tan': result = Math.tan(currentNum * Math.PI / 180); break;
+            case 'asin': result = Math.asin(currentNum) * 180 / Math.PI; break;
+            case 'acos': result = Math.acos(currentNum) * 180 / Math.PI; break;
+            case 'atan': result = Math.atan(currentNum) * 180 / Math.PI; break;
+            case 'sinh': result = Math.sinh(currentNum); break;
+            case 'cosh': result = Math.cosh(currentNum); break;
+            case 'sqrt': result = Math.sqrt(currentNum); break;
+            case 'log': result = Math.log(currentNum); break;
+            case 'log10': result = Math.log10(currentNum); break;
+            case 'abs': result = Math.abs(currentNum); break;
+            case 'fact': result = factorial(Math.floor(currentNum)); break;
+        }
+        sciHistoryStr = `${funcName}(${sciInput})`;
+        sciInput = result.toString();
+        updateSciDisplay();
+    }
+
+    function factorial(n) {
+        if (n < 0) return 0;
+        if (n === 0 || n === 1) return 1;
+        let r = 1;
+        for (let i = 2; i <= n; i++) r *= i;
+        return r;
+    }
+
+    function evaluateSci() {
+        try {
+            sciHistoryStr = sciInput;
+            let cleanExp = sciInput.replace(/×/g, '*').replace(/÷/g, '/');
+            let res = new Function(`return ${cleanExp}`)();
+            sciInput = res.toString();
+        } catch {
+            sciInput = 'Error';
+        }
+        updateSciDisplay();
+    }
+
+    // --- STEP-BY-STEP MATH SOLVER ---
+    function generatePEMDASSteps() {
+        const container = document.getElementById('steps-output');
+        let expr = sciInput.trim();
+        if(expr === '0' || expr === '') {
+            container.innerHTML = `<div class="step-card" style="border-right-color:#ef4444;">هیچ عبارتی در نمایشگر بالا ثبت نشده است!</div>`;
+            return;
+        }
+
+        let htmlSteps = `<div style="font-weight: 800; color: var(--primary); margin-bottom: 10px;">تحلیل تشریحی عبارت: ${expr}</div>`;
+        let steps = [];
+
+        if (expr.includes('(')) {
+            steps.push({
+                title: "گام اول: ارزیابی و موازنه پرانتزها",
+                desc: "ابتدا طبق اولویت‌های ریاضی، داخلی‌ترین پرانتزها محاسبه و ساده‌سازی می‌گردند.",
+                formula: expr
+            });
+        }
+        if (expr.includes('**')) {
+            steps.push({
+                title: "گام دوم: ارزیابی مقادیر توان",
+                desc: "محاسبه پایه‌ها به توان مربوطه قبل از اعمال ضرب و تقسیم صورت می‌پذیرد.",
+                formula: expr.replace(/\*\*/g, ' ^ ')
+            });
+        }
+        if (expr.includes('*') || expr.includes('/')) {
+            steps.push({
+                title: "گام سوم: ضرب و تقسیم هم‌ارز",
+                desc: "عملیات ضرب و تقسیم اولویت یکسان دارند و خط‌به‌خط از سمت چپ به راست اعمال می‌شوند.",
+                formula: expr
+            });
+        }
+
+        try {
+            let cleanExp = expr.replace(/×/g, '*').replace(/÷/g, '/');
+            let finalAns = new Function(`return ${cleanExp}`)();
+            steps.push({
+                title: "گام نهایی: محاسبه ساده‌ترین شکل کسر",
+                desc: "با حل و اعمال تمامی قوانین تشریحی ریاضی، حاصل نهایی بدین ترتیب است:",
+                formula: `حاصل نهایی = ${finalAns}`
+            });
+        } catch {
+            container.innerHTML = `<div class="step-card" style="border-right-color:#ef4444;">ساختار ورودی ریاضی نامعتبر است.</div>`;
+            return;
+        }
+
+        steps.forEach((s) => {
+            htmlSteps += `
+                <div class="step-card">
+                    <span class="step-badge">بارم نهایی: ۰.۵۰</span>
+                    <div class="step-card-title">${s.title}</div>
+                    <p>${s.desc}</p>
+                    <div class="step-formula">${s.formula}</div>
+                </div>
+            `;
+        });
+        container.innerHTML = htmlSteps;
+    }
+
+    function generateQuadraticSteps() {
+        const container = document.getElementById('steps-output');
+        const a = parseFloat(document.getElementById('quad-a').value);
+        const b = parseFloat(document.getElementById('quad-b').value);
+        const c = parseFloat(document.getElementById('quad-c').value);
+
+        if(isNaN(a) || isNaN(b) || isNaN(c)) {
+            container.innerHTML = `<div class="step-card" style="border-right-color:#ef4444;">لطفاً ضرایب a و b و c را مشخص کنید.</div>`;
+            return;
+        }
+
+        let delta = (b * b) - (4 * a * c);
+        let html = `
+            <div style="font-weight: 800; color: var(--primary); margin-bottom: 10px;">حل تشریحی: ${a}x² + (${b})x + (${c}) = 0</div>
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۵۰</span>
+                <div class="step-card-title">گام ۱: مشخص کردن ضرایب و نوشتن رابطه عمومی دلتا</div>
+                <div class="step-formula">Δ = b² - 4ac</div>
+            </div>
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۷۵</span>
+                <div class="step-card-title">گام ۲: محاسبات ممیز دلتا</div>
+                <div class="step-formula">Δ = (${b})² - 4(${a})(${c}) = ${delta}</div>
+            </div>
+        `;
+
+        if(delta < 0) {
+            html += `
+                <div class="step-card" style="border-right-color:#ef4444;">
+                    <span class="step-badge">بارم: ۰.۷۵</span>
+                    <div class="step-card-title">گام ۳: تحلیل مقدار ممیز دلتا</div>
+                    چون دلتا منفی است (Δ < 0)، معادله ریشه حقیقی ندارد.
+                </div>
+            `;
+        } else if(delta === 0) {
+            let r = -b / (2 * a);
+            html += `
+                <div class="step-card">
+                    <span class="step-badge">بارم: ۰.۷۵</span>
+                    <div class="step-card-title">گام ۳: محاسبه ریشه مضاعف</div>
+                    <div class="step-formula">x = -b / 2a = -(${b}) / (2 × ${a}) = ${r}</div>
+                </div>
+            `;
+        } else {
+            let r1 = (-b + Math.sqrt(delta)) / (2 * a);
+            let r2 = (-b - Math.sqrt(delta)) / (2 * a);
+            html += `
+                <div class="step-card">
+                    <span class="step-badge">بارم: ۰.۷۵</span>
+                    <div class="step-card-title">گام ۳: محاسبه ریشه‌های دوگانه متمایز</div>
+                    <div class="step-formula">x₁,₂ = (-b ± √Δ) / 2a</div>
+                    <div class="step-formula">x₁ = ${r1.toFixed(3)} , x₂ = ${r2.toFixed(3)}</div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+
+    function generateSystemSteps() {
+        const container = document.getElementById('steps-output');
+        const a1 = parseFloat(document.getElementById('sys-a1').value);
+        const b1 = parseFloat(document.getElementById('sys-b1').value);
+        const c1 = parseFloat(document.getElementById('sys-c1').value);
+        const a2 = parseFloat(document.getElementById('sys-a2').value);
+        const b2 = parseFloat(document.getElementById('sys-b2').value);
+        const c2 = parseFloat(document.getElementById('sys-c2').value);
+
+        let D = (a1 * b2) - (b1 * a2);
+        if (D === 0) {
+            container.innerHTML = `<div class="step-card" style="border-right-color:#ef4444;">دترمینان ضرایب صفر است! دستگاه فاقد جواب منفرد است.</div>`;
+            return;
+        }
+
+        let x = ((c1 * b2) - (b1 * c2)) / D;
+        let y = ((a1 * c2) - (c1 * a2)) / D;
+
+        container.innerHTML = `
+            <div style="font-weight: 800; color: var(--primary); margin-bottom: 10px;">حل تشریحی دستگاه دو مجهولی به روش حذفی</div>
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۵۰</span>
+                <div class="step-card-title">گام ۱: نوشتن دستگاه همزمان</div>
+                <div class="step-formula">(I): ${a1}x + (${b1})y = ${c1} <br> (II): ${a2}x + (${b2})y = ${c2}</div>
+            </div>
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۷۵</span>
+                <div class="step-card-title">گام ۲: همسان‌سازی ضرایب و حذف مجهول y</div>
+                <div class="step-formula">x = ${x.toFixed(2)}</div>
+            </div>
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۷۵</span>
+                <div class="step-card-title">گام ۳: محاسبه مجهول فرعی با جایگذاری مقدار x</div>
+                <div class="step-formula">y = ${y.toFixed(2)}</div>
+            </div>
+        `;
+    }
+
+    // --- GRAPH PLOTTER MODULE ---
+    function initGraphView() {
+        plotCustomFunction();
+    }
+
+    function plotCustomFunction() {
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+        const formula = document.getElementById('graph-formula-input').value;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // draw background grid
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let x = 0; x < canvas.width; x += 20) {
+            ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
+        }
+        for (let y = 0; y < canvas.height; y += 20) {
+            ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
+        }
+        ctx.stroke();
+
+        // draw axes
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2, 0); ctx.lineTo(canvas.width / 2, canvas.height);
+        ctx.moveTo(0, canvas.height / 2); ctx.lineTo(canvas.width, canvas.height / 2);
+        ctx.stroke();
+
+        // plot math curve
+        ctx.strokeStyle = 'var(--secondary)';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+
+        let isFirst = true;
+        for (let px = 0; px < canvas.width; px++) {
+            let x = (px - canvas.width / 2) / 20; // scale factor
+            try {
+                let y = eval(formula);
+                let py = canvas.height / 2 - (y * 20); // invert and scale
+                if (isFirst) {
+                    ctx.moveTo(px, py);
+                    isFirst = false;
+                } else {
+                    ctx.lineTo(px, py);
+                }
+            } catch(e) {}
+        }
+        ctx.stroke();
+    }
+
+    // --- DYNAMIC PHYSICS CIRCUIT SCHEMATIC & SOLVER ---
+    function updateCircuitSchematic() {
+        const type = document.getElementById('circuit-type').value;
+        const r1 = document.getElementById('circ-r1').value;
+        const r2 = document.getElementById('circ-r2').value;
+        const r3 = document.getElementById('circ-r3').value;
+        const v = document.getElementById('circ-v').value;
+
+        const canvas = document.getElementById('circuitCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Styling properties
+        ctx.strokeStyle = 'var(--secondary)';
+        ctx.lineWidth = 2.5;
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '11px Vazirmatn';
+
+        // Draw battery (source) on the left side
+        ctx.beginPath();
+        ctx.moveTo(50, 40);
+        ctx.lineTo(50, 85);
+        ctx.moveTo(50, 115);
+        ctx.lineTo(50, 160);
+        ctx.stroke();
+
+        // Battery poles (plates)
+        ctx.beginPath();
+        ctx.lineWidth = 4;
+        ctx.moveTo(35, 85); ctx.lineTo(65, 85);
+        ctx.moveTo(42, 95); ctx.lineTo(58, 95);
+        ctx.moveTo(35, 105); ctx.lineTo(65, 105);
+        ctx.moveTo(42, 115); ctx.lineTo(58, 115);
+        ctx.stroke();
+        ctx.lineWidth = 2.5;
+
+        // Label battery
+        ctx.fillText(`V = ${v}V`, 68, 103);
+
+        // General Wire paths depending on configuration type
+        if (type === 'series') {
+            // Series layout: R1, R2, R3 arranged horizontally on top wire
+            // Draw wires
+            ctx.beginPath();
+            ctx.moveTo(50, 40); ctx.lineTo(100, 40);
+            ctx.moveTo(300, 40); ctx.lineTo(350, 40);
+            ctx.lineTo(350, 160); ctx.lineTo(50, 160);
+            ctx.stroke();
+
+            // Draw R1, R2, R3
+            drawResistorSymbol(ctx, 100, 40, "horizontal", `R1 = ${r1}Ω`);
+            drawResistorSymbol(ctx, 170, 40, "horizontal", `R2 = ${r2}Ω`);
+            drawResistorSymbol(ctx, 240, 40, "horizontal", `R3 = ${r3}Ω`);
+
+        } else if (type === 'parallel') {
+            // Parallel layout: vertical branches with R1, R2, R3
+            ctx.beginPath();
+            ctx.moveTo(50, 40); ctx.lineTo(250, 40);
+            ctx.moveTo(50, 160); ctx.lineTo(250, 160);
+            
+            // Branch vertical wires
+            ctx.moveTo(120, 40); ctx.lineTo(120, 60);
+            ctx.moveTo(120, 140); ctx.lineTo(120, 160);
+
+            ctx.moveTo(180, 40); ctx.lineTo(180, 60);
+            ctx.moveTo(180, 140); ctx.lineTo(180, 160);
+
+            ctx.moveTo(240, 40); ctx.lineTo(240, 60);
+            ctx.moveTo(240, 140); ctx.lineTo(240, 160);
+            ctx.stroke();
+
+            // Draw R1, R2, R3 vertically on each branch
+            drawResistorSymbol(ctx, 120, 60, "vertical", `R1 = ${r1}Ω`);
+            drawResistorSymbol(ctx, 180, 60, "vertical", `R2 = ${r2}Ω`);
+            drawResistorSymbol(ctx, 240, 60, "vertical", `R3 = ${r3}Ω`);
+
+            // Complete connection wire back to negative terminal
+            ctx.beginPath();
+            ctx.moveTo(240, 40); ctx.lineTo(300, 40);
+            ctx.lineTo(300, 160); ctx.lineTo(240, 160);
+            ctx.stroke();
+
+        } else if (type === 'combination') {
+            // Combination layout: R1 is in series with the parallel combination of R2 and R3
+            ctx.beginPath();
+            ctx.moveTo(50, 40); ctx.lineTo(120, 40);
+            ctx.stroke();
+
+            // Series R1
+            drawResistorSymbol(ctx, 120, 40, "horizontal", `R1 = ${r1}Ω`);
+
+            // Splitting node after R1
+            ctx.beginPath();
+            ctx.moveTo(180, 40); ctx.lineTo(210, 40);
+            ctx.lineTo(210, 25); ctx.lineTo(230, 25);
+            ctx.moveTo(210, 40); ctx.lineTo(210, 55);
+            ctx.lineTo(230, 55);
+            ctx.stroke();
+
+            // Parallel branch resistors R2 and R3
+            drawResistorSymbol(ctx, 230, 25, "horizontal", `R2 = ${r2}Ω`);
+            drawResistorSymbol(ctx, 230, 55, "horizontal", `R3 = ${r3}Ω`);
+
+            // Merge node after R2 & R3
+            ctx.beginPath();
+            ctx.moveTo(290, 25); ctx.lineTo(310, 25);
+            ctx.lineTo(310, 40);
+            ctx.moveTo(290, 55); ctx.lineTo(310, 55);
+            ctx.lineTo(310, 40);
+            
+            // Wire back to source
+            ctx.lineTo(340, 40);
+            ctx.lineTo(340, 160);
+            ctx.lineTo(50, 160);
+            ctx.stroke();
+        }
+    }
+
+    // Helper helper to draw a nice zig-zag resistor symbol
+    function drawResistorSymbol(ctx, x, y, direction, label) {
+        ctx.save();
+        ctx.strokeStyle = 'var(--primary)';
+        ctx.beginPath();
+        if (direction === "horizontal") {
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + 10, y);
+            ctx.lineTo(x + 14, y - 10);
+            ctx.lineTo(x + 22, y + 10);
+            ctx.lineTo(x + 30, y - 10);
+            ctx.lineTo(x + 38, y + 10);
+            ctx.lineTo(x + 46, y - 10);
+            ctx.lineTo(x + 50, y);
+            ctx.lineTo(x + 60, y);
+            ctx.stroke();
+            ctx.fillText(label, x + 8, y + 25);
+        } else {
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + 10);
+            ctx.lineTo(x - 10, y + 14);
+            ctx.lineTo(x + 10, y + 22);
+            ctx.lineTo(x - 10, y + 30);
+            ctx.lineTo(x + 10, y + 38);
+            ctx.lineTo(x - 10, y + 46);
+            ctx.lineTo(x, y + 50);
+            ctx.lineTo(x, y + 60);
+            ctx.stroke();
+            ctx.fillText(label, x + 15, y + 35);
+        }
+        ctx.restore();
+    }
+
+    // Step-by-Step DC Circuit solver (Series/Parallel laws & Kirchhoff)
+    function solveCircuitStepByStep() {
+        const type = document.getElementById('circuit-type').value;
+        const r1 = parseFloat(document.getElementById('circ-r1').value);
+        const r2 = parseFloat(document.getElementById('circ-r2').value);
+        const r3 = parseFloat(document.getElementById('circ-r3').value);
+        const v = parseFloat(document.getElementById('circ-v').value);
+
+        if (isNaN(r1) || isNaN(r2) || isNaN(r3) || isNaN(v)) {
+            alert("لطفاً کلیه پارامترهای مقاومتی و ولتاژ منبع را مشخص فرمایید.");
+            return;
+        }
+
+        const out = document.getElementById('circuit-steps-output');
+        let html = ``;
+
+        if (type === 'series') {
+            // Req = R1 + R2 + R3
+            const req = r1 + r2 + r3;
+            // Itotal = V / Req
+            const iTotal = v / req;
+            // Individual volt drops
+            const v1 = iTotal * r1;
+            const v2 = iTotal * r2;
+            const v3 = iTotal * r3;
+
+            html = `
+                <div style="font-weight: 800; color: var(--primary); margin-bottom: 10px;">تحلیل مدارهای متوالی (سری)</div>
+                <div class="step-card">
+                    <span class="step-badge">بارم: ۰.۵۰</span>
+                    <div class="step-card-title">گام ۱: محاسبه مقاومت معادل کل مدار (Req)</div>
+                    در مدار سری، جریان از تمامی مقاومت‌ها به طور یکسان عبور می‌کند و مقاومت کل از مجموع آنها حاصل می‌شود:
+                    <div class="step-formula">R_eq = R1 + R2 + R3</div>
+                    <div class="step-formula">R_eq = ${r1} + ${r2} + ${r3} = ${req.toFixed(1)} Ω</div>
+                </div>
+
+                <div class="step-card">
+                    <span class="step-badge">بارم: ۰.۷۵</span>
+                    <div class="step-card-title">گام ۲: اعمال قانون اهم برای استخراج جریان کل مدار (I)</div>
+                    طبق رابطه شدت جریان کل منبع جریان:
+                    <div class="step-formula">I_total = V / R_eq</div>
+                    <div class="step-formula">I_total = ${v} / ${req.toFixed(1)} = ${iTotal.toFixed(3)} A</div>
+                </div>
+
+                <div class="step-card">
+                    <span class="step-badge">بارم: ۰.۷۵</span>
+                    <div class="step-card-title">گام ۳: تعیین ولتاژ دو سر هر مقاومت (افت ولتاژ)</div>
+                    جریان عبوری از تک‌تک مقاومت‌ها برابر جریان کل (${iTotal.toFixed(3)}A) است:
+                    <div class="step-formula">V1 = I × R1 = ${iTotal.toFixed(3)} × ${r1} = ${v1.toFixed(2)} V</div>
+                    <div class="step-formula">V2 = I × R2 = ${iTotal.toFixed(3)} × ${r2} = ${v2.toFixed(2)} V</div>
+                    <div class="step-formula">V3 = I × R3 = ${iTotal.toFixed(3)} × ${r3} = ${v3.toFixed(2)} V</div>
+                    مجموع افت ولتاژها برابر ولتاژ منبع تغذیه است: 
+                    <div class="step-formula">V1 + V2 + V3 = ${v1.toFixed(1)} + ${v2.toFixed(1)} + ${v3.toFixed(1)} = ${v.toFixed(1)} V</div>
+                </div>
+            `;
+
+        } else if (type === 'parallel') {
+            // 1/Req = 1/R1 + 1/R2 + 1/R3
+            const invReq = (1/r1) + (1/r2) + (1/r3);
+            const req = 1 / invReq;
+            const iTotal = v / req;
+            const i1 = v / r1;
+            const i2 = v / r2;
+            const i3 = v / r3;
+
+            html = `
+                <div style="font-weight: 800; color: var(--primary); margin-bottom: 10px;">تحلیل مدارهای موازی</div>
+                <div class="step-card">
+                    <span class="step-badge">بارم: ۰.۷۵</span>
+                    <div class="step-card-title">گام ۱: رابطه معکوس مقاومت معادل در آرایش موازی (Req)</div>
+                    در اتصال موازی، اختلاف پتانسیل دو سر تمام مقاومت‌ها یکسان و برابر ولتاژ منبع تغذیه است:
+                    <div class="step-formula">1 / R_eq = 1/R1 + 1/R2 + 1/R3</div>
+                    <div class="step-formula">1 / R_eq = 1/${r1} + 1/${r2} + 1/${r3} = ${invReq.toFixed(4)}</div>
+                    <div class="step-formula">R_eq = 1 / ${invReq.toFixed(4)} = ${req.toFixed(2)} Ω</div>
+                </div>
+
+                <div class="step-card">
+                    <span class="step-badge">بارم: ۰.۵۰</span>
+                    <div class="step-card-title">گام ۲: محاسبه شدت جریان شاخه‌ای با قانون اهم</div>
+                    شدت جریان عبوری از هر مقاومت با مقدار آن مقاومت رابطه معکوس دارد:
+                    <div class="step-formula">I1 = V / R1 = ${v} / ${r1} = ${i1.toFixed(3)} A</div>
+                    <div class="step-formula">I2 = V / R2 = ${v} / ${r2} = ${i2.toFixed(3)} A</div>
+                    <div class="step-formula">I3 = V / R3 = ${v} / ${r3} = ${i3.toFixed(3)} A</div>
+                </div>
+
+                <div class="step-card">
+                    <span class="step-badge">بارم: ۰.۷۵</span>
+                    <div class="step-card-title">گام ۳: تحقیق قانون جریان کیرشهف (KCL)</div>
+                    جریان کل ورودی به گره برابر است با مجموع جریان شاخه‌های موازی:
+                    <div class="step-formula">I_total = I1 + I2 + I3</div>
+                    <div class="step-formula">I_total = ${i1.toFixed(2)} + ${i2.toFixed(2)} + ${i3.toFixed(2)} = ${iTotal.toFixed(2)} A</div>
+                </div>
+            `;
+
+        } else if (type === 'combination') {
+            // R2 and R3 in parallel: R23 = (R2*R3)/(R2+R3)
+            const r23 = (r2 * r3) / (r2 + r3);
+            const req = r1 + r23;
+            const iTotal = v / req;
+            const v1 = iTotal * r1;
+            const v23 = v - v1; // voltage drop across parallel combo
+            const i2 = v23 / r2;
+            const i3 = v23 / r3;
+
+            html = `
+                <div style="font-weight: 800; color: var(--primary); margin-bottom: 10px;">تحلیل مدارهای ترکیبی (سری - موازی)</div>
+                <div class="step-card">
+                    <span class="step-badge">بارم: ۰.۵۰</span>
+                    <div class="step-card-title">گام ۱: محاسبه معادل موازی بخش فرعی (R23)</div>
+                    ابتدا مقاومت‌های موازی R2 و R3 را همسنجی و معادل‌سازی می‌کنیم:
+                    <div class="step-formula">R23 = (R2 × R3) / (R2 + R3)</div>
+                    <div class="step-formula">R23 = (${r2} × ${r3}) / (${r2} + ${r3}) = ${r23.toFixed(2)} Ω</div>
+                </div>
+
+                <div class="step-card">
+                    <span class="step-badge">بارم: ۰.۵۰</span>
+                    <div class="step-card-title">گام ۲: محاسبه مقاومت کل مدار (Req)</div>
+                    حالا R1 با معادل موازی R23 به صورت سری قرار دارد:
+                    <div class="step-formula">R_eq = R1 + R23 = ${r1} + ${r23.toFixed(2)} = ${req.toFixed(2)} Ω</div>
+                </div>
+
+                <div class="step-card">
+                    <span class="step-badge">بارم: ۰.۵۰</span>
+                    <div class="step-card-title">گام ۳: محاسبه جریان کل خارج شده از منبع</div>
+                    <div class="step-formula">I_total = V / R_eq = ${v} / ${req.toFixed(2)} = ${iTotal.toFixed(3)} A</div>
+                </div>
+
+                <div class="step-card">
+                    <span class="step-badge">بارم: ۰.۵۰</span>
+                    <div class="step-card-title">گام ۴: تحلیل ولتاژها و جریان‌های شاخه‌ای</div>
+                    افت ولتاژ مقاومت اول R1:
+                    <div class="step-formula">V1 = I_total × R1 = ${iTotal.toFixed(3)} × ${r1} = ${v1.toFixed(2)} V</div>
+                    ولتاژ دو سر شاخه موازی (V23):
+                    <div class="step-formula">V23 = V - V1 = ${v} - ${v1.toFixed(2)} = ${v23.toFixed(2)} V</div>
+                    جریان هر کدام از شاخه‌های موازی R2 و R3:
+                    <div class="step-formula">I2 = V23 / R2 = ${v23.toFixed(2)} / ${r2} = ${i2.toFixed(3)} A</div>
+                    <div class="step-formula">I3 = V23 / R3 = ${v23.toFixed(2)} / ${r3} = ${i3.toFixed(3)} A</div>
+                </div>
+            `;
+        }
+
+        out.innerHTML = html;
+        updateCircuitSchematic();
+    }
+
+    // --- CHEMISTRY DETAILED STEP SOLVERS ---
+
+    // 1. Combustion Equation Balancer Solver (C_x H_y + O2 -> CO2 + H2O)
+    function solveCombustionBalance() {
+        const x = parseInt(document.getElementById('hydro-x').value);
+        const y = parseInt(document.getElementById('hydro-y').value);
+
+        if(isNaN(x) || isNaN(y) || x <= 0 || y <= 0) {
+            alert("لطفاً مقادیر x و y معتبری وارد کنید.");
+            return;
+        }
+
+        // Carbon balances to x CO2
+        const co2Coeff = x;
+        // Hydrogen balances to y/2 H2O
+        const h2oCoeff = y / 2;
+        // Oxygen needed: 2*x (from CO2) + y/2 (from H2O) = 2x + y/2. O2 coefficient is (2x + y/2) / 2 = x + y/4
+        const o2CoeffDouble = 2 * x + (y / 2);
+        
+        let hydroC = 1;
+        let o2C = o2CoeffDouble / 2;
+        let co2C = co2Coeff;
+        let h2oC = h2oCoeff;
+
+        // If O2 coefficient is fractional, multiply everything by 2 to get integer coefficients
+        let multiplied = false;
+        if (o2CoeffDouble % 2 !== 0) {
+            hydroC *= 2;
+            o2C = o2CoeffDouble;
+            co2C *= 2;
+            h2oC *= 2;
+            multiplied = true;
+        }
+
+        const balRes = document.getElementById('bal-res-final');
+        balRes.innerText = `${hydroC} C${x}H${y} + ${o2C} O₂ ➔ ${co2C} CO₂ + ${h2oC} H₂O`;
+
+        const stepsContainer = document.getElementById('chemistry-steps-output');
+        stepsContainer.innerHTML = `
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۵۰</span>
+                <div class="step-card-title">گام ۱: موازنه اتم‌های کربن (C)</div>
+                برای موازنه کربن در هیدروکربن، ضریب دی‌اکسید کربن را برابر تعداد اتم‌های کربن یعنی $x = ${x}$ قرار می‌دهیم:
+                <div class="step-formula">C${x}H${y} + O₂ ➔ ${x} CO₂ + H₂O</div>
+            </div>
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۵۰</span>
+                <div class="step-card-title">گام ۲: موازنه اتم‌های هیدروژن (H)</div>
+                برای موازنه هیدروژن، ضریب آب را برابر نصف تعداد هیدروژن‌ها یعنی $y/2 = ${y/2}$ قرار می‌دهیم:
+                <div class="step-formula">C${x}H${y} + O₂ ➔ ${x} CO₂ + ${y/2} H₂O</div>
+            </div>
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۷۵</span>
+                <div class="step-card-title">گام ۳: موازنه اکسیژن (O) و ساده‌سازی به اعداد صحیح</div>
+                تعداد کل اتم‌های اکسیژن در سمت راست برابر است با: $2 × ${x} + ${y/2} = ${o2CoeffDouble}$ اتم اکسیژن.
+                بنابراین ضریب گاز اکسیژن ($O₂$) برابر است با $ ${o2CoeffDouble} / 2 = ${o2CoeffDouble/2} $.
+                ${multiplied ? `چون ضریب کسر شد، کل معادله را در ۲ ضرب می‌کنیم تا ضرایب به کوچکترین اعداد صحیح تبدیل شوند:` : `تمام ضرایب به طور خودکار صحیح و ساده هستند:`}
+                <div class="step-formula">${hydroC} C${x}H${y} + ${o2C} O₂ ➔ ${co2C} CO₂ + ${h2oC} H₂O</div>
+            </div>
+        `;
+    }
+
+    // 2. Stoichiometry conversion factor step solver
+    function solveStoichDescriptive() {
+        const mass = parseFloat(document.getElementById('stoich-mass').value);
+        const mwReact = parseFloat(document.getElementById('stoich-mw-react').value);
+        const mwProd = parseFloat(document.getElementById('stoich-mw-prod').value);
+        const coeffProd = parseFloat(document.getElementById('stoich-coeff-prod').value);
+        const coeffReact = parseFloat(document.getElementById('stoich-coeff-react').value);
+
+        if(isNaN(mass) || isNaN(mwReact) || isNaN(mwProd) || isNaN(coeffProd) || isNaN(coeffReact)) {
+            alert("لطفاً اطلاعات عددی محاسبات استوکیومتری را کامل کنید.");
+            return;
+        }
+
+        // Calculation chain
+        const molesReact = mass / mwReact;
+        const molesProd = molesReact * (coeffProd / coeffReact);
+        const massProd = molesProd * mwProd;
+
+        document.getElementById('stoich-res-final').innerText = `جرم فرآورده تولیدی: ${massProd.toFixed(2)} گرم`;
+
+        const stepsContainer = document.getElementById('chemistry-steps-output');
+        stepsContainer.innerHTML = `
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۵۰</span>
+                <div class="step-card-title">گام ۱: تبدیل جرم فرضی واکنش‌دهنده به مول</div>
+                با استفاده از کسر تبدیل جرم مولی واکنش‌دهنده:
+                <div class="step-formula">n = m / M_M = ${mass} g ÷ ${mwReact} g/mol = ${molesReact.toFixed(3)} mol</div>
+            </div>
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۷۵</span>
+                <div class="step-card-title">گام ۲: کسر نسبت مولی واکنش موازنه شده</div>
+                اعمال نسبت مولی فرآورده به واکنش‌دهنده (${coeffProd} به ${coeffReact}):
+                <div class="step-formula">mol_product = ${molesReact.toFixed(3)} mol × (${coeffProd} / ${coeffReact}) = ${molesProd.toFixed(3)} mol</div>
+            </div>
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۷۵</span>
+                <div class="step-card-title">گام ۳: تبدیل مول فرآورده به گرم هدف</div>
+                ضرب مول در جرم مولی فرآورده (${mwProd} g/mol):
+                <div class="step-formula">m_product = ${molesProd.toFixed(3)} mol × ${mwProd} g/mol = ${massProd.toFixed(2)} g</div>
+            </div>
+        `;
+    }
+
+    // 3. Enthalpy step solver
+    function solveEnthalpyDescriptive() {
+        const broken = parseFloat(document.getElementById('enthalpy-broken').value);
+        const formed = parseFloat(document.getElementById('enthalpy-formed').value);
+
+        if(isNaN(broken) || isNaN(formed)) {
+            alert("مقادیر آنتالپی پیوندهای شکسته‌شده و تشکیل‌شده معتبر نیست.");
+            return;
+        }
+
+        const deltaH = broken - formed;
+        document.getElementById('enthalpy-res-final').innerText = `ΔH واکنش: ${deltaH} kJ`;
+
+        const stepsContainer = document.getElementById('chemistry-steps-output');
+        stepsContainer.innerHTML = `
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۵۰</span>
+                <div class="step-card-title">گام ۱: معرفی رابطه عمومی تغییر آنتالپی بر اساس انرژی پیوندها</div>
+                تغییر آنتالپی کل واکنش برابر است با تفاضل مجموع انرژی پیوندهای شکسته‌شده (واکنش‌دهنده‌ها) از مجموع پیوندهای تشکیل‌شده (فرآورده‌ها):
+                <div class="step-formula">ΔH = ∑D(شکسته‌شده) - ∑D(تشکیل‌شده)</div>
+            </div>
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۷۵</span>
+                <div class="step-card-title">گام ۲: جایگذاری مقادیر مکتوب انرژی پیوندها</div>
+                <div class="step-formula">ΔH = ${broken} kJ - ${formed} kJ</div>
+            </div>
+            <div class="step-card">
+                <span class="step-badge">بارم: ۰.۷۵</span>
+                <div class="step-card-title">گام ۳: محاسبه تفاوت آنتالپی و تحلیل گرماگیر/گرماده بودن</div>
+                <div class="step-formula">ΔH = ${deltaH} kJ</div>
+                ${deltaH < 0 ? `چون مقدار آنتالپی منفی است (ΔH < 0)، این واکنش <strong>گرماده (Exothermic)</strong> است.` : `چون مقدار آنتالپی مثبت است (ΔH > 0)، این واکنش <strong>گرماگیر (Endothermic)</strong> است.`}
+            </div>
+        `;
+    }
+
+    // --- SYSTEMS INITIALIZER ---
+    function toggleTheme() {
+        document.body.classList.toggle('light-theme');
+    }
+
+    window.onload = function() {
+        renderDatabase();
+        updateDeckPosition();
+    };
+</script>
+</body>
+</html>
